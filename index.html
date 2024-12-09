@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fiszki do Nauki</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 600px;
+            background: white;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            text-align: center;
+        }
+        .question, .answer {
+            font-size: 18px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .question.active, .answer.active {
+            display: block;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            color: white;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="question" class="question"></div>
+        <div id="answer" class="answer"></div>
+        <button id="show-answer">Pokaż odpowiedź</button>
+        <div class="nav-buttons">
+            <button id="prev">← Poprzednia</button>
+            <button id="next">Następna →</button>
+        </div>
+    </div>
+
+    <script>
+        const fiszki = [
+            { 
+                pytanie: "Scharakteryzuj przyczyny osłabienia pozycji USA na świecie na początku lat 70-tych XX w.", 
+                odpowiedz: "Kryzys naftowy, wojna w Wietnamie i skandal Watergate osłabiły pozycję USA na arenie międzynarodowej." 
+            },
+            { 
+                pytanie: "Opisz skutki powstania republiki islamskiej w Iranie.", 
+                odpowiedz: "Zmiana ustroju na teokratyczny, antyzachodnia polityka i pogorszenie relacji z USA." 
+            },
+            { 
+                pytanie: "Wyjaśnij na czym polegała polityka odprężenia w latach 70-tych XX w.", 
+                odpowiedz: "Zmniejszenie napięcia między Wschodem a Zachodem poprzez porozumienia o kontroli zbrojeń, jak SALT." 
+            },
+            { 
+                pytanie: "Opisz znaczenie porozumienia w Camp David z 1978 r.", 
+                odpowiedz: "Zapoczątkowało pokój między Egiptem a Izraelem, stabilizując sytuację na Bliskim Wschodzie." 
+            },
+            { 
+                pytanie: "Scharakteryzuj pojęcia: restytucja, rewindykacja, ekstradycja.", 
+                odpowiedz: "Restytucja: przywrócenie mienia; rewindykacja: odzyskanie mienia; ekstradycja: wydanie przestępcy." 
+            },
+            { 
+                pytanie: "Dlaczego Polska nie otrzymała po II w. św. od Niemiec reparacji wojennych?", 
+                odpowiedz: "ZSRR zrzekł się reparacji od Niemiec w imieniu krajów bloku wschodniego." 
+            },
+            { 
+                pytanie: "Scharakteryzuj zmiany zachodzące w Chinach po śmierci Mao Zedonga.", 
+                odpowiedz: "Reformy Deng Xiaopinga: otwarcie gospodarki na świat, rozwój wolnego rynku i modernizacja." 
+            },
+            { 
+                pytanie: "Wyjaśnij pojęcie 'jeden kraj, dwa systemy'.", 
+                odpowiedz: "Koncepcja autonomii Hongkongu i Makau w ramach Chin, umożliwiająca zachowanie kapitalizmu." 
+            },
+            { 
+                pytanie: "Czym jest neoliberalizm?", 
+                odpowiedz: "Teoria gospodarcza zakładająca minimalną ingerencję państwa w gospodarkę i wolny rynek." 
+            },
+            { 
+                pytanie: "Czym jest zjawisko zwane stagflacją?", 
+                odpowiedz: "Występowanie jednocześnie wysokiej inflacji i stagnacji gospodarczej." 
+            },
+            { 
+                pytanie: "Wyjaśnij na czym polegała koncepcja budowy drugiej Polski przez Gierka.", 
+                odpowiedz: "Dynamiczna modernizacja przemysłu i infrastruktury dzięki kredytom zagranicznym." 
+            },
+            { 
+                pytanie: "Wymień trzy inwestycje E. Gierka.", 
+                odpowiedz: "Huta Katowice, trasa Gierkówka, elektrownia w Bełchatowie." 
+            },
+            { 
+                pytanie: "Napisz jakie zmiany administracyjne miały miejsce w Polsce po 1976 roku.", 
+                odpowiedz: "Zwiększenie liczby województw z 17 do 49." 
+            },
+            { 
+                pytanie: "Napisz jakie błędy w polityce rozwoju gospodarczego popełnił Gierek.", 
+                odpowiedz: "Nadmierne zadłużenie zagraniczne i brak efektywności inwestycji." 
+            },
+            { 
+                pytanie: "Czym jest reglamentacja?", 
+                odpowiedz: "System przydziału towarów na kartki w wyniku ich niedoborów." 
+            },
+            { 
+                pytanie: "Opisz przyczyny i skutki wydarzeń czerwca 1976 roku.", 
+                odpowiedz: "Przyczyny: podwyżki cen żywności; skutki: represje i powstanie opozycji, m.in. KOR." 
+            },
+            { 
+                pytanie: "Napisz czym był KOR i kiedy powstał.", 
+                odpowiedz: "Komitet Obrony Robotników, założony w 1976 r., wspierał represjonowanych robotników." 
+            },
+            { 
+                pytanie: "Napisz jakie czynniki doprowadziły do powstania opozycji demokratycznej w PRL-u w latach 70-tych.", 
+                odpowiedz: "Nadmierne represje, kryzys gospodarczy i inspiracja wydarzeniami na Zachodzie." 
+            },
+            { 
+                pytanie: "Na czym polegała zmiana polityki międzynarodowej RFN pod rządami Willy’ego Brandta?", 
+                odpowiedz: "Polityka wschodnia ('Ostpolitik') – normalizacja stosunków z krajami bloku wschodniego." 
+            },
+            { 
+                pytanie: "Czym jest list otwarty?", 
+                odpowiedz: "Forma publicznej wypowiedzi skierowanej do szerokiego grona odbiorców." 
+            }
+        ];
+
+        let currentIndex = 0;
+
+        const questionElement = document.getElementById("question");
+        const answerElement = document.getElementById("answer");
+        const showAnswerButton = document.getElementById("show-answer");
+        const prevButton = document.getElementById("prev");
+        const nextButton = document.getElementById("next");
+
+        function updateCard() {
+            questionElement.textContent = fiszki[currentIndex].pytanie;
+            questionElement.classList.add("active");
+            answerElement.textContent = "";
+            answerElement.classList.remove("active");
+        }
+
+        showAnswerButton.addEventListener("click", () => {
+            answerElement.textContent = fiszki[currentIndex].odpowiedz;
+            answerElement.classList.add("active");
+        });
+
+        prevButton.addEventListener("click", () => {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateCard();
+            }
+        });
+
+        nextButton.addEventListener("click", () => {
+            if (currentIndex < fiszki.length - 1) {
+                currentIndex++;
+                updateCard();
+            }
+        });
+
+        updateCard();
+    </script>
+</body>
+</html>
